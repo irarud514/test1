@@ -1,0 +1,165 @@
+let editingUserId = null;
+
+function userList() {
+    $.ajax({
+        url: 'http://localhost:8080/api/users',
+        type: 'GET',
+        dataType: 'json',
+        success: function (users) {
+            userListSuccess(users);
+        },
+        error: function (request, message, error) {
+            handleException(request, message, error);
+        }
+    });
+}
+
+function userListSuccess(users) {
+    $("#userTable tbody").empty();
+    $.each(users, function (index, user) {
+        userAddRow(user);
+    });
+}
+
+function userAddRow(user) {
+    if ($("#userTable tbody").length == 0) {
+        $("#userTable").append("<tbody></tbody>");
+    }
+    $("#userTable tbody").append(userBuildTableRow(user));
+}
+
+function userBuildTableRow(user) {
+    return "<tr>" +
+        "<td>" + user.firstname + "</td>" +
+        "<td>" + user.lastname + "</td>" +
+        "<td>" + (user.age !== undefined ? user.age : '') + "</td>" +
+        "<td>" +
+        "<button class='btn btn-sm btn-danger' onclick='deleteUser(" + user.id + ")'>Delete</button> " +
+        "<button class='btn btn-sm btn-warning' onclick='editUser(" + user.id + ", \"" + user.firstname + "\", \"" + user.lastname + "\", " + (user.age !== undefined ? user.age : 'null') + ")'>Update</button>" +
+        "</td>" +
+        "</tr>";
+}
+
+function handleException(request, message, error) {
+    let msg = "";
+    msg += "Code: " + request.status + "\n";
+    msg += "Text: " + request.statusText + "\n";
+    if (request.responseJSON != null) {
+        msg += "Message" + request.responseJSON.Message + "\n";
+    }
+    alert(msg);
+}
+
+function formClear() {
+    $("#firstname").val("");
+    $("#lastname").val("");
+    $("#age").val("");
+    editingUserId = null;
+    $("#updateButton").text("Add").attr("onclick", "addUser()");
+}
+
+function addUser() {
+    const user = {};
+    user.firstname = $("#firstname").val();
+    user.lastname = $("#lastname").val();
+    user.age = $("#age").val() ? parseInt($("#age").val()) : null;
+
+    if (!user.firstname || !user.lastname || !user.age) {
+        alert("Please fill all fields (firstname, lastname, age)");
+        return;
+    }
+
+    $.ajax({
+        url: "http://localhost:8080/api/users",
+        type: 'POST',
+        contentType: "application/json;charset=utf-8",
+        data: JSON.stringify(user),
+        success: function () {
+            userList();
+            formClear();
+        },
+        error: function (request, message, error) {
+            handleException(request, message, error);
+        }
+    });
+}
+
+function deleteUser(id) {
+    if (!confirm("Are you sure you want to delete this user?")) return;
+    $.ajax({
+        url: 'http://localhost:8080/api/users/' + id,
+        type: 'DELETE',
+        success: function () {
+            userList();
+        },
+        error: function (request, message, error) {
+            handleException(request, message, error);
+        }
+    });
+}
+
+function editUser(id, firstname, lastname, age) {
+    $("#firstname").val(firstname);
+    $("#lastname").val(lastname);
+    $("#age").val(age);
+    editingUserId = id;
+    $("#updateButton").text("Update").attr("onclick", "updateUser()");
+}
+
+function updateUser() {
+    if (!editingUserId) return;
+    const user = {};
+    user.firstname = $("#firstname").val();
+    user.lastname = $("#lastname").val();
+    user.age = $("#age").val() ? parseInt($("#age").val()) : null;
+
+    if (!user.firstname || !user.lastname || !user.age) {
+        alert("Please fill all fields (firstname, lastname, age)");
+        return;
+    }
+
+    $.ajax({
+        url: 'http://localhost:8080/api/users/' + editingUserId,
+        type: 'PUT',
+        contentType: "application/json;charset=utf-8",
+        data: JSON.stringify(user),
+        success: function () {
+            userList();
+            formClear();
+        },
+        error: function (request, message, error) {
+            handleException(request, message, error);
+        }
+    });
+}
+
+function deleteAllClick() {
+    if (!confirm("Delete all users?")) return;
+    $.ajax({
+        url: 'http://localhost:8080/api/users',
+        type: 'DELETE',
+        success: function () {
+            userDeleteSuccess();
+        },
+        error: function (request, message, error) {
+            handleException(request, message, error);
+        }
+    });
+}
+
+function userDeleteSuccess() {
+    $("#userTable tbody").remove();
+}
+
+function updateSurnames() {
+    $.ajax({
+        url: 'http://localhost:8080/api/users/update-surnames',
+        type: 'POST',
+        success: function () {
+            userList();
+        },
+        error: function (request, message, error) {
+            handleException(request, message, error);
+        }
+    });
+}
