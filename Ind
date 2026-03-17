@@ -1,0 +1,85 @@
+<html>
+   <head>
+      <title>tessting</title>
+      <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+      <script src="scripts.js"></script>
+   </head>
+   <script>
+      $(document).ready(function () {
+         userList();
+      });
+   </script>  
+   <body>
+      <div class="row">
+         <div class="col-sm-8">
+            <table id="userTable"
+               class="table table-bordered
+               table-condensed table-striped">
+               <thead>
+                  <tr>
+                     <th>Firstname</th>
+                     <th>Lastname</th>
+                     <th>Age</th>
+                     <th>Actions</th>
+                  </tr>
+               </thead>
+               <tbody id="userTableBody">
+               </tbody>
+            </table>
+         </div>
+      </div>
+      <div class="row">
+         <div class="col-sm-6">
+            <div class="panel panel-primary">
+               <div class="panel-heading">
+                  User Information
+               </div>
+               <div class="panel-body">
+               </div>
+               <div class="panel-footer">
+               </div>
+            </div>
+         </div>
+      </div>
+      <div class="form-group">
+         <label for="firstname">Firstname</label>
+         <input type="text" id="firstname" class="form-control"/>
+      </div>
+      <div class="form-group">
+         <label for="lastname">Lastname</label>
+         <input type="text" id="lastname" class="form-control"/>
+      </div>
+      <div class="form-group">
+         <label for="age">Age</label>
+         <input type="number" id="age" class="form-control"/>
+      </div>
+      <div class="row">
+         <div class="col-xs-12">
+            <button type="button"
+               id="updateButton"
+               class="btn btn-primary"
+               onclick="addUser();">
+            Add
+            </button>
+            <button type="button"
+               id="updateSurnamesButton"
+               class="btn btn-primary"
+               onclick="updateSurnames();">
+            Set RUDNIKOVA
+            </button>
+         </div>
+      </div>
+      <div class="row">
+         <div class="col-xs-12">
+            <button type="button"
+               id="deleteAllButton"
+               class="btn btn-primary"
+               onclick="deleteAllClick();">
+            Delete All
+            </button>
+         </div>
+      </div>
+      <input type="hidden" id="editingUserId" value="" />
+   </body>
+</html>
