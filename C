@@ -1,0 +1,80 @@
+package com.example.demo.controller;
+
+import com.example.demo.repository.model.UserEntity;
+import com.example.demo.repository.model.UserRepository;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+@RestController
+@RequestMapping("/api")
+public class UserController {
+
+    private final UserRepository userRepository;
+
+    public UserController(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    @GetMapping("/users")
+    public ResponseEntity<List<UserInfo>> getUsers() {
+        List<UserEntity> users = userRepository.findAll();
+        List<UserInfo> resultUsers = new ArrayList<>();
+        for (UserEntity user : users) {
+            resultUsers.add(new UserInfo(user.getId(), user.getFirstName(), user.getLastName(), user.getAge()));
+        }
+        return ResponseEntity.ok(resultUsers);
+    }
+
+    @PostMapping("/users")
+    public ResponseEntity<UserInfo> createUser(@RequestBody UserInfo userInfo) {
+        UserEntity saved = userRepository.save(
+                new UserEntity(userInfo.getFirstName(), userInfo.getLastName(), userInfo.getAge())
+        );
+        return ResponseEntity.ok(new UserInfo(saved.getId(), saved.getFirstName(), saved.getLastName(), saved.getAge()));
+    }
+
+    @DeleteMapping("/users")
+    public ResponseEntity<Void> deleteAllUsers() {
+        userRepository.deleteAll();
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        if (userRepository.existsById(id)) {
+            userRepository.deleteById(id);
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PutMapping("/users/{id}")
+    public ResponseEntity<UserInfo> updateUser(@PathVariable Long id, @RequestBody UserInfo userInfo) {
+        Optional<UserEntity> optionalUser = userRepository.findById(id);
+        if (optionalUser.isPresent()) {
+            UserEntity user = optionalUser.get();
+            user.setFirstName(userInfo.getFirstName());
+            user.setLastName(userInfo.getLastName());
+            user.setAge(userInfo.getAge());
+            userRepository.save(user);
+            return ResponseEntity.ok(new UserInfo(user.getId(), user.getFirstName(), user.getLastName(), user.getAge()));
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @PostMapping("/users/update-surnames")
+    public ResponseEntity<Void> updateAllSurnames() {
+        List<UserEntity> users = userRepository.findAll();
+        for (UserEntity user : users) {
+            user.setLastName("RUDNIKOVA");
+        }
+        userRepository.saveAll(users);
+        return ResponseEntity.ok().build();
+    }
+}
